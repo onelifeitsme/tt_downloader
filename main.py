@@ -3,7 +3,7 @@ import asyncio
 
 
 async def fetch(url, session):
-    response = await session.get(url)
+    response = await session._request(method='GET', str_or_url=url, proxy='http://proxy.server:3128')
     response_text = await response.text()
     return response_text
 
@@ -30,7 +30,7 @@ async def download_video(video_url, session):
 
 
 async def get_video(url, session):
-    # session = aiohttp.ClientSession()
+    session = aiohttp.ClientSession()
     try:
         response_text = await fetch(url, session)
         video_url = await get_download_url(response_text)
