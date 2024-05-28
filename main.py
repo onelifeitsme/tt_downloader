@@ -18,26 +18,28 @@ async def get_download_url(response_text: str):
     return url.replace("\\u002F", "/")
 
 
-async def download_video(video_url, filename, session):
+async def download_video(video_url, session):
     response = await session.get(video_url)
-    with open(filename, 'wb') as file:
-        while True:
-            chunk = await response.content.read(8192)
-            if not chunk:
-                break
-            file.write(chunk)
+    video_bytes = b''
+    while True:
+        chunk = await response.content.read(8192)
+        if not chunk:
+            break
+        video_bytes += chunk
+    return video_bytes
 
 
-async def main(url):
+async def get_video(url):
     session = aiohttp.ClientSession()
     try:
         response_text = await fetch(url, session)
         video_url = await get_download_url(response_text)
-        await download_video(video_url, 'video.mp4', session)
+        video_bytes = await download_video(video_url, session)
+        return video_bytes
     finally:
         await session.close()
 
-url = input('Введите ссылку на видео для скачивания \n')
-
-# Запускаем основную асинхронную функцию
-asyncio.run(main(url))
+# url = input('Введите ссылку на видео для скачивания \n')
+#
+# # Запускаем основную асинхронную функцию
+# asyncio.run(get_video(url))
