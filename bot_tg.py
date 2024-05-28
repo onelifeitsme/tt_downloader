@@ -9,7 +9,8 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from main import get_video
 # Bot token can be obtained via https://t.me/BotFather
-
+from aiogram.client.session.aiohttp import AiohttpSession
+session = AiohttpSession(proxy='http://proxy.server:3128')
 
 from dotenv import load_dotenv
 import os
@@ -57,7 +58,7 @@ async def echo_handler(message: types.Message) -> None:
 
 async def main() -> None:
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=session)
     # And the run events dispatching
     await dp.start_polling(bot)
 
