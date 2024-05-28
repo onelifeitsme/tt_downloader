@@ -46,7 +46,7 @@ async def echo_handler(message: types.Message) -> None:
         if not 'tiktok.com' in message.text:
             await message.answer('Некорректная ссылка')
         else:
-            video_bytes = await get_video(message.text)
+            video_bytes = await get_video(message.text, session=session)
             from aiogram.types import BufferedInputFile
 
             video = BufferedInputFile(video_bytes, filename='video.mp4')

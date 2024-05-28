@@ -29,8 +29,8 @@ async def download_video(video_url, session):
     return video_bytes
 
 
-async def get_video(url):
-    session = aiohttp.ClientSession()
+async def get_video(url, session):
+    # session = aiohttp.ClientSession()
     try:
         response_text = await fetch(url, session)
         video_url = await get_download_url(response_text)
