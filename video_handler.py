@@ -1,11 +1,11 @@
 import aiohttp
+from exceptions import UrlRedirectedToManPage
 
 
-async def fetch(url, session, dev=False):
-    if not dev:
-        response = await session._request(method='GET', str_or_url=url, proxy='http://proxy.server:3128')
-    else:
-        response = await session.get(url=url)
+async def fetch(url, session):
+    response = await session.get(url=url)
+    if response.real_url.name == '404':
+        raise UrlRedirectedToManPage('Такого видео не существует')
     response_text = await response.text()
     return response_text
 
@@ -21,20 +21,23 @@ async def get_download_url(response_text: str):
 
 
 async def download_video(video_url, session):
-    response = await session.get(video_url)
-    video_bytes = b''
-    while True:
-        chunk = await response.content.read(8192)
-        if not chunk:
-            break
-        video_bytes += chunk
-    return video_bytes
+    try:
+        response = await session.get(video_url)
+        video_bytes = b''
+        while True:
+            chunk = await response.content.read(8192)
+            if not chunk:
+                break
+            video_bytes += chunk
+        return video_bytes
+    except aiohttp.ClientError:
+        raise Exception('Не удалось скачать видео')
 
 
 async def get_video(url, dev=False):
     session = aiohttp.ClientSession()
     try:
-        response_text = await fetch(url, session, dev)
+        response_text = await fetch(url, session)
         video_url = await get_download_url(response_text)
         video_bytes = await download_video(video_url, session)
         return video_bytes
