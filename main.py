@@ -1,9 +1,11 @@
 import aiohttp
-import asyncio
 
 
-async def fetch(url, session):
-    response = await session._request(method='GET', str_or_url=url, proxy='http://proxy.server:3128')
+async def fetch(url, session, dev=False):
+    if not dev:
+        response = await session._request(method='GET', str_or_url=url, proxy='http://proxy.server:3128')
+    else:
+        response = await session.get(url=url)
     response_text = await response.text()
     return response_text
 
@@ -29,17 +31,12 @@ async def download_video(video_url, session):
     return video_bytes
 
 
-async def get_video(url, session):
+async def get_video(url, dev=False):
     session = aiohttp.ClientSession()
     try:
-        response_text = await fetch(url, session)
+        response_text = await fetch(url, session, dev)
         video_url = await get_download_url(response_text)
         video_bytes = await download_video(video_url, session)
         return video_bytes
     finally:
         await session.close()
-
-# url = input('Введите ссылку на видео для скачивания \n')
-#
-# # Запускаем основную асинхронную функцию
-# asyncio.run(get_video(url))
