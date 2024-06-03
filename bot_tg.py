@@ -6,18 +6,14 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
-from video_handler import get_video
 from aiogram.types import BufferedInputFile
 from users_saver import MongoDataHandler
 from dotenv import load_dotenv
 import os
 load_dotenv()
-from datetime import datetime
 TOKEN = os.getenv("BOT_TOKEN")
 from middlwares import OnlyOneVideoAccessMiddleware, CorrectLinkMiddleware, SaveUserMiddleware
 dp = Dispatcher()
-
-
 
 
 @dp.message(CommandStart())
@@ -36,7 +32,8 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
             await message.answer("Некорректная ссылка")
     except TypeError:
         await message.answer("Упс. Неизвестная ошибка")
-    message.bot.users_are_downloading_video.remove(message.from_user.id)
+    finally:
+        message.bot.users_are_downloading_video.remove(message.from_user.id)
 
 
 async def main() -> None:
@@ -44,8 +41,8 @@ async def main() -> None:
     bot.db = MongoDataHandler()
     bot.users_are_downloading_video = set()
     dp.update.middleware(SaveUserMiddleware())
-    dp.update.middleware(CorrectLinkMiddleware())
     dp.update.middleware(OnlyOneVideoAccessMiddleware())
+    dp.update.middleware(CorrectLinkMiddleware())
     await dp.start_polling(bot)
 
 

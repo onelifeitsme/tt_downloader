@@ -46,13 +46,13 @@ class SaveUserMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        # user = await event.message.bot.db.get_user(user_id=event.message.from_user.id)
-        # if not user:
-        #     await event.message.bot.db.insert_user(
-        #         data={'user_id': event.message.from_user.id,
-        #               'first_name': event.message.from_user.first_name,
-        #               'full_name': event.message.from_user.full_name,
-        #               'join_date': datetime.now()
-        #               }
-        #     )
+        user = await event.message.bot.db.get_user(user_id=event.message.from_user.id)
+        if not user:
+            await event.message.bot.db.insert_user(
+                data={'user_id': event.message.from_user.id,
+                      'first_name': event.message.from_user.first_name,
+                      'full_name': event.message.from_user.full_name,
+                      'join_date': datetime.now()
+                      }
+            )
         return await handler(event, data)
