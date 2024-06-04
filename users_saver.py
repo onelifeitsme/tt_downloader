@@ -1,18 +1,7 @@
 from abc import ABC, abstractmethod
-import asyncio
 import motor.motor_asyncio
-import datetime
+from datetime import datetime
 
-# client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017')
-# db = client.users
-#
-# async def do_insert():
-#     values = [1, 2, 3, 4, 5]
-#     document = {'values': values}
-#     result = await db.started_bot.insert_one(document)
-#     print('inserted_id %s' % result.inserted_id)
-#
-# asyncio.run(do_insert())
 
 
 class DataHandler(ABC):
@@ -38,29 +27,21 @@ class MongoDataHandler(DataHandler):
     async def get_user(self, user_id: int):
         user = await self.db.users.started_bot.find_one({'user_id': user_id})
         return user
+
+    async def get_today_user(self, user_id: int, date: str):
+        user = await self.db.users.today_users.find_one({'user_id': user_id, 'date': date})
+        return user
+
     async def insert_user(self, data):
         await self.db.users.started_bot.insert_one(data)
 
+    async def insert_today_user(self, user_id: int, date: str):
+        await self.db.users.today_users.insert_one({'user_id': user_id, 'date': date})
 
     async def remove(self):
         return 1
 
-
-# async def main():
-#     db = MongoDataHandler()
-#
-#     data = {'user_id': 4446, 'first_name': 'John', 'full_name': 'John Doe', 'join_date': datetime.datetime.now()}
-#     # await db.insert_user(data)
-#     user = await db.get_user(user_id=4443)
-    ...
-
-# asyncio.run(main())
-
-
-
-
-
-
-
-
-
+    async def get_today_uniq_amount(self, date=str(datetime.now().date())):
+        users = await self.db.users.today_users.find({'date': date}).to_list(length=None)
+        amount = len(set(record["user_id"] for record in users))
+        return amount

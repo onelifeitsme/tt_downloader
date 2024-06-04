@@ -1,10 +1,26 @@
+import os
 from typing import Any, Callable, Dict, Awaitable
 from aiogram.types import TelegramObject
 from aiogram import BaseMiddleware
 from datetime import datetime
-import aiohttp
 from video_handler import get_video
 from exceptions import UrlRedirectedToManPage
+
+
+ADMIN_ID = os.getenv('ADMIN_ID')
+
+
+class ErrorsMiddleware(BaseMiddleware):
+    async def __call__(
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
+        try:
+            return await handler(event, data)
+        except Exception as e:
+            await event.bot.send_message(chat_id=ADMIN_ID, text=str(e))
 
 
 class OnlyOneVideoAccessMiddleware(BaseMiddleware):
@@ -14,6 +30,7 @@ class OnlyOneVideoAccessMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
+        x = 566 / 0
         if not event.message.from_user.id in event.bot.users_are_downloading_video and not 'tiktok.com' in event.message.text:
             return await handler(event, data)
         elif not event.message.from_user.id in event.bot.users_are_downloading_video and 'tiktok.com' in event.message.text:
@@ -55,4 +72,20 @@ class SaveUserMiddleware(BaseMiddleware):
                       'join_date': datetime.now()
                       }
             )
+        return await handler(event, data)
+
+
+class TodayUniqUsersMiddleware(BaseMiddleware):
+    async def __call__(
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
+        user = await event.message.bot.db.get_today_user(user_id=event.message.from_user.id, date=str(datetime.now().date()))
+        if not user:
+            await event.message.bot.db.insert_today_user(
+                user_id=event.message.from_user.id,
+                date=str(datetime.now().date()
+            ))
         return await handler(event, data)
