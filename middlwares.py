@@ -30,7 +30,6 @@ class OnlyOneVideoAccessMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        x = 566 / 0
         if not event.message.from_user.id in event.bot.users_are_downloading_video and not 'tiktok.com' in event.message.text:
             return await handler(event, data)
         elif not event.message.from_user.id in event.bot.users_are_downloading_video and 'tiktok.com' in event.message.text:
