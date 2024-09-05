@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import sys
-import traceback
 
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.enums import ParseMode
@@ -20,6 +19,8 @@ from middlwares import (OnlyOneVideoAccessMiddleware, CorrectLinkMiddleware,
 dp = Dispatcher()
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
+
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -32,6 +33,7 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
         try:
             video_bytes = kwargs.get("video_bytes")
             video = BufferedInputFile(video_bytes, filename='video.mp4')
+            await message.bot.send_message(chat_id=ADMIN_ID, text=f'{message.from_user.full_name} скачал видео')
             await message.answer_video(video, height=1920, width=1080)
         except Exception:
             await message.answer("Некорректная ссылка")
@@ -43,8 +45,11 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
 
 async def send_daily_message(bot: Bot) -> None:
     today_uniq_users = await bot.db.get_today_uniq_amount()
-    await bot.send_message(chat_id=ADMIN_ID, text=f'Уникальных пользователей сегодня: {today_uniq_users}')
-
+    uniq_users = await bot.db.get_uniq_amount()
+    await bot.send_message(
+        chat_id=ADMIN_ID,
+        text=f'Уникальных пользователей сегодня: {today_uniq_users}\nВсего уникальных: {uniq_users}')
+    await bot.db.insert_users_to_google_sheet(google_sheet_id=GOOGLE_SHEET_ID)
 
 async def send_error_message(error_text: str, bot: Bot) -> None:
     await bot.send_message(chat_id=ADMIN_ID, text=error_text)
@@ -55,14 +60,14 @@ async def main() -> None:
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
     bot.db = MongoDataHandler()
     bot.users_are_downloading_video = set()
-    dp.update.middleware(ErrorsMiddleware())
+    # dp.update.middleware(ErrorsMiddleware())
     dp.update.middleware(SaveUserMiddleware())
     dp.update.middleware(TodayUniqUsersMiddleware())
     dp.update.middleware(OnlyOneVideoAccessMiddleware())
     dp.update.middleware(CorrectLinkMiddleware())
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(send_daily_message, 'cron', hour=21, minute=33, args=[bot])
+    scheduler.add_job(send_daily_message, 'cron', hour=23, minute=58, args=[bot])
     scheduler.start()
 
 
@@ -72,9 +77,8 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     asyncio.run(main())
-    l = logging.getLogger()
 
 
 

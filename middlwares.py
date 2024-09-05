@@ -35,7 +35,7 @@ class OnlyOneVideoAccessMiddleware(BaseMiddleware):
         elif not event.message.from_user.id in event.bot.users_are_downloading_video and 'tiktok.com' in event.message.text:
             event.bot.users_are_downloading_video.add(event.message.from_user.id)
             return await handler(event, data)
-        return await event.message.answer('Дождитесь скачивания предыдущего видео')
+        return await event.message.answer('Не так быстро! Дождитесь скачивания предыдущего видео')
 
 
 class CorrectLinkMiddleware(BaseMiddleware):
@@ -45,6 +45,8 @@ class CorrectLinkMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
+        if event.message.text == '/start': #TODO: эту проверку заменить на адекватную проверу нового юзера
+            return await handler(event, data)
         if not 'tiktok.com/' in event.message.text:
             return await event.message.answer('Некорректная ссылка')
         try:
@@ -68,9 +70,10 @@ class SaveUserMiddleware(BaseMiddleware):
                 data={'user_id': event.message.from_user.id,
                       'first_name': event.message.from_user.first_name,
                       'full_name': event.message.from_user.full_name,
-                      'join_date': datetime.now()
+                      'join_date': str(datetime.now().date())
                       }
             )
+            await event.bot.send_message(chat_id=ADMIN_ID, text=f'{event.message.from_user.full_name} начал пользоваться ботом')
         return await handler(event, data)
 
 
