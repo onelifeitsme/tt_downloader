@@ -6,3 +6,4 @@ motor==3.4.0
 APScheduler==3.10.4
 httplib2==0.22.0
 google-api-python-client==2.131.0
+oauth2client==4.1.3
