@@ -41,5 +41,7 @@ async def get_video(url, dev=False):
         video_url = await get_download_url(response_text)
         video_bytes = await download_video(video_url, session)
         return video_bytes
+    except:
+        pass
     finally:
         await session.close()

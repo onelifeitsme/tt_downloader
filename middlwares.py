@@ -5,22 +5,10 @@ from aiogram import BaseMiddleware
 from datetime import datetime
 from video_handler import get_video
 from exceptions import UrlRedirectedToManPage
+from aiohttp.client_exceptions import InvalidURL
 
 
 ADMIN_ID = os.getenv('ADMIN_ID')
-
-
-class ErrorsMiddleware(BaseMiddleware):
-    async def __call__(
-            self,
-            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-            event: TelegramObject,
-            data: Dict[str, Any],
-    ) -> Any:
-        try:
-            return await handler(event, data)
-        except Exception as e:
-            await event.bot.send_message(chat_id=ADMIN_ID, text=str(e))
 
 
 class OnlyOneVideoAccessMiddleware(BaseMiddleware):
@@ -30,10 +18,7 @@ class OnlyOneVideoAccessMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        if not event.message.from_user.id in event.bot.users_are_downloading_video and not 'tiktok.com' in event.message.text:
-            return await handler(event, data)
-        elif not event.message.from_user.id in event.bot.users_are_downloading_video and 'tiktok.com' in event.message.text:
-            event.bot.users_are_downloading_video.add(event.message.from_user.id)
+        if not event.message.from_user.id in event.bot.users_are_downloading_video:
             return await handler(event, data)
         return await event.message.answer('Не так быстро! Дождитесь скачивания предыдущего видео')
 
@@ -48,13 +33,18 @@ class CorrectLinkMiddleware(BaseMiddleware):
         if event.message.text == '/start': #TODO: эту проверку заменить на адекватную проверу нового юзера
             return await handler(event, data)
         if not 'tiktok.com/' in event.message.text:
-            return await event.message.answer('Некорректная ссылка')
+            return await event.message.answer('Некорректная ссылка((')
+        event.bot.users_are_downloading_video.add(event.message.from_user.id)
         try:
             video_bytes = await get_video(event.message.text)
             data['video_bytes'] = video_bytes
             return await handler(event, data)
         except UrlRedirectedToManPage:
-            return await event.message.answer('Некорректная ссылка')
+            return await event.message.answer('Некорректная ссылка(((')
+        except InvalidURL:
+            return await event.message.answer('Некорректная ссылка((((')
+        finally:
+            event.bot.users_are_downloading_video.remove(event.message.from_user.id)
 
 
 class SaveUserMiddleware(BaseMiddleware):

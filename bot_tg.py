@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sys
 
-from aiogram import Bot, Dispatcher, Router, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
@@ -15,7 +15,7 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = os.getenv("ADMIN_ID")
 from middlwares import (OnlyOneVideoAccessMiddleware, CorrectLinkMiddleware,
-                        SaveUserMiddleware, TodayUniqUsersMiddleware, ErrorsMiddleware)
+                        SaveUserMiddleware, TodayUniqUsersMiddleware)
 dp = Dispatcher()
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -33,14 +33,13 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
         try:
             video_bytes = kwargs.get("video_bytes")
             video = BufferedInputFile(video_bytes, filename='video.mp4')
-            await message.bot.send_message(chat_id=ADMIN_ID, text=f'{message.from_user.full_name} скачал видео')
-            await message.answer_video(video, height=1920, width=1080)
+            answer = await message.answer_video(video, height=1920, width=1080)
+            if answer:
+                await message.bot.send_message(chat_id=ADMIN_ID, text=f'{message.from_user.full_name} скачал видео')
         except Exception:
-            await message.answer("Некорректная ссылка")
+            await message.answer("Некорректная ссылка(")
     except TypeError:
         await message.answer("Упс. Неизвестная ошибка")
-    finally:
-        message.bot.users_are_downloading_video.remove(message.from_user.id)
 
 
 async def send_daily_message(bot: Bot) -> None:
@@ -60,7 +59,6 @@ async def main() -> None:
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
     bot.db = MongoDataHandler()
     bot.users_are_downloading_video = set()
-    # dp.update.middleware(ErrorsMiddleware())
     dp.update.middleware(SaveUserMiddleware())
     dp.update.middleware(TodayUniqUsersMiddleware())
     dp.update.middleware(OnlyOneVideoAccessMiddleware())
@@ -79,6 +77,3 @@ async def main() -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     asyncio.run(main())
-
-
-
