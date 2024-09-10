@@ -1,0 +1,21 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Install SSHpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Connect to VPS and create 1.txt
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@217.171.146.18 "touch /root/1.txt"
