@@ -67,15 +67,21 @@ async def download_video(video_url, session):
         raise Exception('Не удалось скачать видео')
 
 
+async def fetch_info():
+    connector = ProxyConnector.from_url('socks5://127.0.0.1:9050')
+    async with aiohttp.ClientSession(connector=connector) as session:
+        async with session.get('https://ipinfo.io', headers={'Accept': 'application/json'}) as response:
+            info = await response.json()
+            print(info)
+
+
 async def get_video(url, dev=False):
     session = aiohttp.ClientSession(connector=connector)
     try:
         logger.info('')
         logger.info('')
         logger.info('')
-        # logger.info('Ниже response_text')
-        qqq = await session.get(url='https://ipinfo.io', headers={'Accept': 'application/json'})
-        info = await qqq.json()
+        info = await fetch_info()
         logger.info(f'info: {info}')
         response_text = await fetch(url, session)
 
