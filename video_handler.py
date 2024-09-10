@@ -73,7 +73,7 @@ async def download_video(video_url, session):
 
 
 async def get_video(url, dev=False):
-    connector = ProxyConnector.from_url('socks5://127.0.0.1:9050')
+    # connector = ProxyConnector.from_url('socks5://127.0.0.1:9050')
     async with aiohttp.ClientSession(connector=connector) as session:
         try:
             logger.info('')
