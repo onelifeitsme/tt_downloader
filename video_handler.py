@@ -7,19 +7,30 @@ from exceptions import UrlRedirectedToManPage
 logger = logging.getLogger(__name__)
 
 headers = {
-    "content-type": "application/json; charset=UTF-8",
-    "origin": "https://www.tiktok.com",
-    "priority": "u=1, i",
-    "referer": "https://www.tiktok.com/",
-    "sec-ch-ua": '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Linux"',
-    "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+    'Host': 'www.tiktok.com',
+    'content-type': 'application/json; charset=UTF-8',
+    'origin': 'https://www.tiktok.com',
+    'priority': 'u=1, i',
+    'referer': 'https://www.tiktok.com/',
+    'sec-ch-ua': '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Linux"',
+    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate'
 }
 
 
 async def fetch(url, session):
     response = await session.get(url=url, headers=headers)
+    logger.info('')
+    logger.info('')
+    logger.info('')
+    logger.info('')
+    logger.info(f'response: {response}')
+    logger.info(f'response_status: {response.status}')
+    logger.info(f'response_content: {response.content}')
+    logger.info(f'response_request_info_headers: {response.request_info.headers}')
     if response.real_url.name == '404':
         raise UrlRedirectedToManPage('Такого видео не существует')
     response_text = await response.text()
@@ -53,22 +64,22 @@ async def download_video(video_url, session):
 async def get_video(url, dev=False):
     session = aiohttp.ClientSession()
     try:
-        logger.info('')
-        logger.info('')
-        logger.info('')
-        logger.info('Ниже response_text')
+        # logger.info('')
+        # logger.info('')
+        # logger.info('')
+        # logger.info('Ниже response_text')
         response_text = await fetch(url, session)
-        logger.info(response_text)
-        logger.info('')
-        logger.info('')
-        logger.info('Ниже video_url')
+        # logger.info(response_text)
+        # logger.info('')
+        # logger.info('')
+        # logger.info('Ниже video_url')
         video_url = await get_download_url(response_text)
-        logger.info(video_url)
-        logger.info('')
-        logger.info('')
-        logger.info('Ниже video_bytes')
+        # logger.info(video_url)
+        # logger.info('')
+        # logger.info('')
+        # logger.info('Ниже video_bytes')
         video_bytes = await download_video(video_url, session)
-        logger.info(video_bytes)
+        # logger.info(video_bytes)
         return video_bytes
     except:
         pass
