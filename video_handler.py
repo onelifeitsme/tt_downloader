@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 from aiohttp_socks import ProxyConnector
 
 # Создаем соединение через SOCKS5-прокси
-connector = ProxyConnector.from_url('socks5://217.171.146.18:9050')
+connector = ProxyConnector.from_url('socks5://host.docker.internal:9050')
+
 
 headers = {
     'Host': 'www.tiktok.com',
@@ -73,7 +74,8 @@ async def download_video(video_url, session):
 
 
 async def get_video(url, dev=False):
-    connector = ProxyConnector.from_url('socks5://217.171.146.18:9050')
+    connector = ProxyConnector.from_url('socks5://host.docker.internal:9050')
+
     async with aiohttp.ClientSession(connector=connector) as session:
         try:
             logger.info('')
