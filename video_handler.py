@@ -6,6 +6,12 @@ from exceptions import UrlRedirectedToManPage
 
 logger = logging.getLogger(__name__)
 
+
+from aiohttp_socks import ProxyConnector
+
+# Создаем соединение через SOCKS5-прокси
+connector = ProxyConnector.from_url('socks5://127.0.0.1:9050')
+
 headers = {
     'Host': 'www.tiktok.com',
     'content-type': 'application/json; charset=UTF-8',
@@ -62,7 +68,7 @@ async def download_video(video_url, session):
 
 
 async def get_video(url, dev=False):
-    session = aiohttp.ClientSession()
+    session = aiohttp.ClientSession(connector=connector)
     try:
         # logger.info('')
         # logger.info('')
