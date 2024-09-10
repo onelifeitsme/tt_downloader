@@ -97,7 +97,7 @@ async def get_video(url, dev=False):
         video_bytes = await download_video(video_url, session)
         # logger.info(video_bytes)
         return video_bytes
-    except:
-        pass
+    except Exception as e:
+        logger.error(f'Произошла ошибка: {e}')
     finally:
         await session.close()
