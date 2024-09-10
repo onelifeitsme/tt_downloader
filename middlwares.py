@@ -33,16 +33,16 @@ class CorrectLinkMiddleware(BaseMiddleware):
         if event.message.text == '/start': #TODO: эту проверку заменить на адекватную проверу нового юзера
             return await handler(event, data)
         if not 'tiktok.com/' in event.message.text:
-            return await event.message.answer('Некорректная ссылка((')
+            return await event.message.answer('Некорректная ссылка')
         event.bot.users_are_downloading_video.add(event.message.from_user.id)
         try:
             video_bytes = await get_video(event.message.text)
             data['video_bytes'] = video_bytes
             return await handler(event, data)
         except UrlRedirectedToManPage:
-            return await event.message.answer('Некорректная ссылка(((')
+            return await event.message.answer('Некорректная ссылка')
         except InvalidURL:
-            return await event.message.answer('Некорректная ссылка((((')
+            return await event.message.answer('Некорректная ссылка')
         finally:
             event.bot.users_are_downloading_video.remove(event.message.from_user.id)
 

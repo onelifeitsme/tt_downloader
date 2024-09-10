@@ -38,7 +38,7 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
             if answer:
                 await message.bot.send_message(chat_id=ADMIN_ID, text=f'{message.from_user.full_name} скачал видео')
         except Exception:
-            await message.answer("Некорректная ссылка(")
+            await message.answer("Некорректная ссылка")
     except TypeError:
         await message.answer("Упс. Неизвестная ошибка")
 
