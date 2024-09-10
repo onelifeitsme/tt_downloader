@@ -31,7 +31,7 @@ services:
     image: dperson/torproxy
     container_name: torproxy
     ports:
-      - "9051:9050"
+      - "9050:9050"
 
 
 volumes:
