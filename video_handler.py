@@ -6,9 +6,20 @@ from exceptions import UrlRedirectedToManPage
 
 logger = logging.getLogger(__name__)
 
+headers = {
+    "content-type": "application/json; charset=UTF-8",
+    "origin": "https://www.tiktok.com",
+    "priority": "u=1, i",
+    "referer": "https://www.tiktok.com/",
+    "sec-ch-ua": '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Linux"',
+    "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+}
+
 
 async def fetch(url, session):
-    response = await session.get(url=url)
+    response = await session.get(url=url, headers=headers)
     if response.real_url.name == '404':
         raise UrlRedirectedToManPage('Такого видео не существует')
     response_text = await response.text()
