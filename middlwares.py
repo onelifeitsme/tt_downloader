@@ -34,7 +34,7 @@ class CorrectLinkMiddleware(BaseMiddleware):
             return await handler(event, data)
         if not 'tiktok.com/' in event.message.text:
             return await event.message.answer('Некорректная ссылка')
-        event.bot.users_are_downloading_video.add(event.message.from_user.id)
+        # event.bot.users_are_downloading_video.add(event.message.from_user.id)
         try:
             video_bytes = await get_video(event.message.text)
             data['video_bytes'] = video_bytes
@@ -44,7 +44,8 @@ class CorrectLinkMiddleware(BaseMiddleware):
         except InvalidURL:
             return await event.message.answer('Некорректная ссылка')
         finally:
-            event.bot.users_are_downloading_video.remove(event.message.from_user.id)
+            pass
+            # event.bot.users_are_downloading_video.remove(event.message.from_user.id)
 
 
 class SaveUserMiddleware(BaseMiddleware):

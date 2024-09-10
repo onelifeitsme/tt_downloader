@@ -58,11 +58,11 @@ async def send_error_message(error_text: str, bot: Bot) -> None:
 async def main() -> None:
 
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    bot.db = MongoDataHandler()
-    bot.users_are_downloading_video = set()
-    dp.update.middleware(SaveUserMiddleware())
-    dp.update.middleware(TodayUniqUsersMiddleware())
-    dp.update.middleware(OnlyOneVideoAccessMiddleware())
+    # bot.db = MongoDataHandler()
+    # bot.users_are_downloading_video = set()
+    # dp.update.middleware(SaveUserMiddleware())
+    # dp.update.middleware(TodayUniqUsersMiddleware())
+    # dp.update.middleware(OnlyOneVideoAccessMiddleware())
     dp.update.middleware(CorrectLinkMiddleware())
 
     scheduler = AsyncIOScheduler()
