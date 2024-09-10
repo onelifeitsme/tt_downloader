@@ -8,8 +8,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-#    networks:
-#      - my_network
+
+  tor:
+    image: torproject/tor
+    container_name: tor_container
+    ports:
+      - "9050:9050"
 
   bot:
     build: .
@@ -17,15 +21,9 @@ services:
     command: ["python3", "main.py"]
     depends_on:
       - mongodb
-#    environment:
-#      - MONGO_URI=mongodb://mongodb:27017/tt_downloader
-#    networks:
-#      - my_network
+      - tor
     env_file:
       - .env
 
 volumes:
   mongo_data:
-
-#networks:
-#  my_network:
