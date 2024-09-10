@@ -1,5 +1,10 @@
+import logging
+
 import aiohttp
 from exceptions import UrlRedirectedToManPage
+
+
+logger = logging.getLogger(__name__)
 
 
 async def fetch(url, session):
@@ -37,8 +42,20 @@ async def download_video(video_url, session):
 async def get_video(url, dev=False):
     session = aiohttp.ClientSession()
     try:
+        logger.info('')
+        logger.info('')
+        logger.info('')
+        logger.info('Ниже response_text')
         response_text = await fetch(url, session)
+        logger.info('')
+        logger.info('')
+        logger.info('')
+        logger.info('Ниже video_url')
         video_url = await get_download_url(response_text)
+        logger.info('')
+        logger.info('')
+        logger.info('')
+        logger.info('Ниже video_bytes')
         video_bytes = await download_video(video_url, session)
         return video_bytes
     except:
