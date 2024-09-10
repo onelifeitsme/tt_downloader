@@ -29,16 +29,14 @@ headers = {
 
 async def fetch(url, session):
     response = await session.get(url=url)
-    logger.info('')
-    logger.info('')
-    logger.info('')
-    logger.info('')
     logger.info(f'response: {response}')
     logger.info(f'response_status: {response.status}')
     logger.info(f'response_content: {response.content}')
     logger.info(f'response_request_info_headers: {response.request_info.headers}')
+
     if response.real_url.name == '404':
         raise UrlRedirectedToManPage('Такого видео не существует')
+
     response_text = await response.text()
     return response_text
 
@@ -75,28 +73,29 @@ async def download_video(video_url, session):
 
 
 async def get_video(url, dev=False):
-    session = aiohttp.ClientSession(connector=connector)
-    try:
-        logger.info('')
-        logger.info('')
-        logger.info('')
-        # info = await fetch_info()
-        # logger.info(f'info: {info}')
-        response_text = await fetch(url, session)
+    connector = ProxyConnector.from_url('socks5://127.0.0.1:9050')
+    async with aiohttp.ClientSession(connector=connector) as session:
+        try:
+            logger.info('')
+            logger.info('')
+            logger.info('')
+            # info = await fetch_info()
+            # logger.info(f'info: {info}')
+            response_text = await fetch(url, session)
 
-        # logger.info(response_text)
-        # logger.info('')
-        # logger.info('')
-        # logger.info('Ниже video_url')
-        video_url = await get_download_url(response_text)
-        # logger.info(video_url)
-        # logger.info('')
-        # logger.info('')
-        # logger.info('Ниже video_bytes')
-        video_bytes = await download_video(video_url, session)
-        # logger.info(video_bytes)
-        return video_bytes
-    except Exception as e:
-        logger.error(f'Произошла ошибка: {e}')
-    finally:
-        await session.close()
+            # logger.info(response_text)
+            # logger.info('')
+            # logger.info('')
+            # logger.info('Ниже video_url')
+            video_url = await get_download_url(response_text)
+            # logger.info(video_url)
+            # logger.info('')
+            # logger.info('')
+            # logger.info('Ниже video_bytes')
+            video_bytes = await download_video(video_url, session)
+            # logger.info(video_bytes)
+            return video_bytes
+        except Exception as e:
+            logger.error(f'Произошла ошибка: {e}')
+        finally:
+            await session.close()
