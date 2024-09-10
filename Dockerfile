@@ -8,10 +8,10 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 
 # Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Копируем все файлы проекта
 COPY . .
 
 # Определяем команду для запуска бота
-CMD ["python", "main.py"]
+#CMD ["python3", "main.py"]

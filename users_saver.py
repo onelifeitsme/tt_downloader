@@ -23,7 +23,7 @@ class DataHandler(ABC):
 class MongoDataHandler(DataHandler):
 
     def __init__(self):
-        self.db = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017')
+        self.db = motor.motor_asyncio.AsyncIOMotorClient('mongodb://mongo_container:27017')
 
     async def get_user(self, user_id: int):
         user = await self.db.users.started_bot.find_one({'user_id': user_id})

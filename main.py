@@ -20,6 +20,7 @@ dp = Dispatcher()
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
+logger = logging.getLogger(__name__)
 
 
 @dp.message(CommandStart())
