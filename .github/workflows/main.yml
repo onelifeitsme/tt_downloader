@@ -16,6 +16,11 @@ jobs:
       - name: Install SSHpass
         run: sudo apt-get install -y sshpass
 
-      - name: Connect to VPS and create 1.txt
+      - name: Deploy project on VPS
         run: |
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@217.171.146.18 "touch /root/1.txt"
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@217.171.146.18 << 'EOF'
+            cd tt_downloader/
+            docker-compose down --remove-orphans
+            git pull
+            docker-compose up --build --force-recreate -d
+          EOF
