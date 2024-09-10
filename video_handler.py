@@ -47,16 +47,17 @@ async def get_video(url, dev=False):
         logger.info('')
         logger.info('Ниже response_text')
         response_text = await fetch(url, session)
-        logger.info('')
+        logger.info(response_text)
         logger.info('')
         logger.info('')
         logger.info('Ниже video_url')
         video_url = await get_download_url(response_text)
-        logger.info('')
+        logger.info(video_url)
         logger.info('')
         logger.info('')
         logger.info('Ниже video_bytes')
         video_bytes = await download_video(video_url, session)
+        logger.info(video_bytes)
         return video_bytes
     except:
         pass
