@@ -67,11 +67,11 @@ async def download_video(video_url, session):
         raise Exception('Не удалось скачать видео')
 
 
-async def fetch_info():
-    async with aiohttp.ClientSession(connector=connector) as session:
-        async with session.get('https://ipinfo.io', headers={'Accept': 'application/json'}) as response:
-            info = await response.json()
-            print(info)
+# async def fetch_info():
+#     async with aiohttp.ClientSession(connector=connector) as session:
+#         async with session.get('https://ipinfo.io', headers={'Accept': 'application/json'}) as response:
+#             info = await response.json()
+#             print(info)
 
 
 async def get_video(url, dev=False):
@@ -80,8 +80,8 @@ async def get_video(url, dev=False):
         logger.info('')
         logger.info('')
         logger.info('')
-        info = await fetch_info()
-        logger.info(f'info: {info}')
+        # info = await fetch_info()
+        # logger.info(f'info: {info}')
         response_text = await fetch(url, session)
 
         # logger.info(response_text)
