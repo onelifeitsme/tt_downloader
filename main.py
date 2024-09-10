@@ -32,7 +32,12 @@ async def command_start_handler(message: Message) -> None:
 async def echo_handler(message: types.Message, **kwargs) -> None:
     try:
         try:
+            logger.info('Ниже видео-байты')
             video_bytes = kwargs.get("video_bytes")
+            logger.info(video_bytes)
+            logger.info('')
+            logger.info('')
+            logger.info('')
             video = BufferedInputFile(video_bytes, filename='video.mp4')
             answer = await message.answer_video(video, height=1920, width=1080)
             if answer:
