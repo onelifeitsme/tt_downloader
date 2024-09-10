@@ -28,7 +28,7 @@ headers = {
 
 
 async def fetch(url, session):
-    response = await session.get(url=url, headers=headers)
+    response = await session.get(url=url)
     logger.info('')
     logger.info('')
     logger.info('')
@@ -70,11 +70,15 @@ async def download_video(video_url, session):
 async def get_video(url, dev=False):
     session = aiohttp.ClientSession(connector=connector)
     try:
-        # logger.info('')
-        # logger.info('')
-        # logger.info('')
+        logger.info('')
+        logger.info('')
+        logger.info('')
         # logger.info('Ниже response_text')
+        qqq = await session.get(url='https://ipinfo.io', headers={'Accept': 'application/json'})
+        info = await qqq.json()
+        logger.info(f'info: {info}')
         response_text = await fetch(url, session)
+
         # logger.info(response_text)
         # logger.info('')
         # logger.info('')
