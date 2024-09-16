@@ -34,7 +34,7 @@ class CorrectLinkMiddleware(BaseMiddleware):
             return await handler(event, data)
         if not 'tiktok.com/' in event.message.text:
             return await event.message.answer('Некорректная ссылка')
-        # event.bot.users_are_downloading_video.add(event.message.from_user.id)
+        event.bot.users_are_downloading_video.add(event.message.from_user.id)
         try:
             video_bytes = await get_video(event.message.text)
             data['video_bytes'] = video_bytes
@@ -44,8 +44,7 @@ class CorrectLinkMiddleware(BaseMiddleware):
         except InvalidURL:
             return await event.message.answer('Некорректная ссылка')
         finally:
-            pass
-            # event.bot.users_are_downloading_video.remove(event.message.from_user.id)
+            event.bot.users_are_downloading_video.remove(event.message.from_user.id)
 
 
 class SaveUserMiddleware(BaseMiddleware):
@@ -55,16 +54,21 @@ class SaveUserMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        user = await event.message.bot.db.get_user(user_id=event.message.from_user.id)
-        if not user:
-            await event.message.bot.db.insert_user(
-                data={'user_id': event.message.from_user.id,
-                      'first_name': event.message.from_user.first_name,
-                      'full_name': event.message.from_user.full_name,
-                      'join_date': str(datetime.now().date())
-                      }
-            )
-            await event.bot.send_message(chat_id=ADMIN_ID, text=f'{event.message.from_user.full_name} начал пользоваться ботом')
+        if event.message.bot.db.is_available:
+            try:
+                user = await event.message.bot.db.get_user(user_id=event.message.from_user.id)
+            except:
+                await event.message.bot.send_message(chat_id=ADMIN_ID, text='Монго недоступна')
+                return await handler(event, data)
+            if not user:
+                await event.message.bot.db.insert_user(
+                    data={'user_id': event.message.from_user.id,
+                          'first_name': event.message.from_user.first_name,
+                          'full_name': event.message.from_user.full_name,
+                          'join_date': str(datetime.now().date())
+                          }
+                )
+                await event.bot.send_message(chat_id=ADMIN_ID, text=f'{event.message.from_user.full_name} начал пользоваться ботом')
         return await handler(event, data)
 
 
@@ -75,10 +79,14 @@ class TodayUniqUsersMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        user = await event.message.bot.db.get_today_user(user_id=event.message.from_user.id, date=str(datetime.now().date()))
-        if not user:
-            await event.message.bot.db.insert_today_user(
-                user_id=event.message.from_user.id,
-                date=str(datetime.now().date()
-            ))
+        if event.message.bot.db.is_available:
+            try:
+                user = await event.message.bot.db.get_today_user(user_id=event.message.from_user.id, date=str(datetime.now().date()))
+                if not user:
+                    await event.message.bot.db.insert_today_user(
+                        user_id=event.message.from_user.id,
+                        date=str(datetime.now().date()
+                    ))
+            except:
+                await event.message.bot.send_message(chat_id=ADMIN_ID, text='Монго недоступна')
         return await handler(event, data)

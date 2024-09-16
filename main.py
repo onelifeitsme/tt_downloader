@@ -44,25 +44,29 @@ async def echo_handler(message: types.Message, **kwargs) -> None:
 
 
 async def send_daily_message(bot: Bot) -> None:
-    today_uniq_users = await bot.db.get_today_uniq_amount()
-    uniq_users = await bot.db.get_uniq_amount()
-    await bot.send_message(
-        chat_id=ADMIN_ID,
-        text=f'Уникальных пользователей сегодня: {today_uniq_users}\nВсего уникальных: {uniq_users}')
-    await bot.db.insert_users_to_google_sheet(google_sheet_id=GOOGLE_SHEET_ID)
+    if bot.db.is_available:
+        today_uniq_users = await bot.db.get_today_uniq_amount()
+        uniq_users = await bot.db.get_uniq_amount()
+        await bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f'Уникальных пользователей сегодня: {today_uniq_users}\nВсего уникальных: {uniq_users}')
+        await bot.db.insert_users_to_google_sheet(google_sheet_id=GOOGLE_SHEET_ID)
 
 async def send_error_message(error_text: str, bot: Bot) -> None:
     await bot.send_message(chat_id=ADMIN_ID, text=error_text)
 
 
 async def main() -> None:
-
+    print('main print')
+    logger.info('main logger')
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    # bot.db = MongoDataHandler()
-    # bot.users_are_downloading_video = set()
-    # dp.update.middleware(SaveUserMiddleware())
-    # dp.update.middleware(TodayUniqUsersMiddleware())
-    # dp.update.middleware(OnlyOneVideoAccessMiddleware())
+
+    bot.db = MongoDataHandler()
+
+    bot.users_are_downloading_video = set()
+    dp.update.middleware(SaveUserMiddleware())
+    dp.update.middleware(TodayUniqUsersMiddleware())
+    dp.update.middleware(OnlyOneVideoAccessMiddleware())
     dp.update.middleware(CorrectLinkMiddleware())
 
     scheduler = AsyncIOScheduler()
