@@ -19,19 +19,12 @@ services:
 #    network_mode: "host"
     depends_on:
       - mongodb
-      - torproxy
 #    environment:
 #      - MONGO_URI=mongodb://mongodb:27017/tt_downloader
 #    networks:
 #      - my_network
     env_file:
       - .env
-
-  torproxy:
-    image: dperson/torproxy
-    container_name: torproxy
-    ports:
-      - "9050:9050"
 
 
 volumes:
